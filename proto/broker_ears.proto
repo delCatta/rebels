@@ -1,6 +1,6 @@
 syntax = "proto3";
 package rebels.broker;
-option go_package = ".;pb";
+option go_package = "../pb";
 
 service LightSpeedComms {
     rpc InformarBroker(InformanteReq) returns (BrokerRes) {}
@@ -12,12 +12,12 @@ service LightSpeedComms {
   }
   // Structs
   message VectorClock {
-    int32 x=0;
-    int32 y=0;
-    int32 z=0;
+    int32 x=1;
+    int32 y=2;
+    int32 z=3;
   }
   message FulcrumAddress {
-    string address=0;
+    string address=1;
   }
   // Informar Broker e Informar Fulcrum
   message InformanteReq {
@@ -33,18 +33,18 @@ service LightSpeedComms {
     uint64 nuevo_valor=4;
   }
   message BrokerRes {
-    FulcrumAddress address = 0;
+    FulcrumAddress address = 1;
   }
   message FulcrumRes {
-    VectorClock vector = 0;
+    VectorClock vector = 2;
   }
 
   // HowManyRebelsBroker
   message LeiaReq {
-    string nombre_planeta=2;
-    string nombre_ciudad=3;
+    string nombre_planeta=1;
+    string nombre_ciudad=2;
   }
   message BrokerAmountRes {
-    FulcrumAddress address = 0;
-    VectorClock vector = 1;
+    FulcrumAddress address = 1;
+    VectorClock vector = 2;
   }

@@ -10,6 +10,9 @@
 
 En todas las máquinas lo primero que se debe hacer es correr `make gen` para generar los archivos de grpc.
 
+
+
+<!-- TODO -->
 ## Máquina 1:
 
 Instrucciones:
