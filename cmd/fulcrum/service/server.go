@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/delCatta/rebels/pb"
@@ -30,6 +31,14 @@ func NewFulcrumClient(address string) *pb.LightSpeedCommsClient {
 	}
 	client := pb.NewLightSpeedCommsClient(conn)
 	return &client
+}
+
+func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.InformanteReq) (*pb.FulcrumRes, error) {
+	// TODO: Almacenar la request y enviar el vector en la respuesta.
+	response := &pb.FulcrumRes{
+		Vector: nil,
+	}
+	return response, nil
 }
 
 // TODO: Proto Comunications con Broker para redireccionar
