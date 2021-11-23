@@ -47,4 +47,5 @@ service LightSpeedComms {
   message BrokerAmountRes {
     FulcrumAddress address = 1;
     VectorClock vector = 2;
+    uint64 amount = 3;
   }
