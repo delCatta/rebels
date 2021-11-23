@@ -33,6 +33,7 @@ func (data *DroidData) Save(req *pb.InformanteReq, res *pb.FulcrumRes, address *
 
 	data.registers = append(data.registers, rv)
 	data.lastAddress[rv.identifier()] = address
+	// TODO: Notify Saved Data!
 }
 
 func (rv *RV) identifier() string {

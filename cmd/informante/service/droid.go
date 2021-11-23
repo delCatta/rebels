@@ -17,26 +17,22 @@ func NewDroid(comms pb.LightSpeedCommsClient) *Droid {
 }
 
 func (droid *Droid) ToBroker(req *pb.InformanteReq) (*pb.FulcrumRes, error) {
-	res, err := droid.comms.InformarBroker(context.Background(), &pb.InformanteReq{
-		Comando: pb.InformanteReq_ADD,
-	})
+	res, err := droid.comms.InformarBroker(context.Background(), req)
 	if err != nil {
 		return nil, err
 	}
-	return droid.toServer(res.Address, req)
+	return droid.toServer(res.GetAddress(), req)
 }
 func (droid *Droid) toServer(address *pb.FulcrumAddress, req *pb.InformanteReq) (*pb.FulcrumRes, error) {
 	fulcrum_client, err := fulcrumClient(address)
 	if err != nil {
 		return nil, err
 	}
-	res, err := fulcrum_client.InformarFulcrum(context.Background(), &pb.InformanteReq{
-		Comando: pb.InformanteReq_ADD,
-	})
+	res, err := fulcrum_client.InformarFulcrum(context.Background(), req)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: Save Received Information.
+	droid.data.Save(req, res, address)
 	return res, nil
 }
 
