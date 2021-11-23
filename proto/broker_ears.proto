@@ -1,0 +1,50 @@
+syntax = "proto3";
+package rebels.broker;
+option go_package = ".;pb";
+
+service LightSpeedComms {
+    rpc InformarBroker(InformanteReq) returns (BrokerRes) {}
+    rpc InformarFulcrum(InformanteReq) returns (FulcrumRes) {}
+
+    rpc HowManyRebelsBroker(LeiaReq) returns (BrokerAmountRes) {}
+
+    // TODO: Comunicación Broker-Fulcrum
+  }
+  // Structs
+  message VectorClock {
+    int32 x=0;
+    int32 y=0;
+    int32 z=0;
+  }
+  message FulcrumAddress {
+    string address=0;
+  }
+  // Informar Broker e Informar Fulcrum
+  message InformanteReq {
+    enum Command {
+      ADD = 0;
+      NAME_UPDATE = 1;
+      NUMBER_UPDATE = 2;
+      DELETE = 3;
+    }
+    Command comando = 1;
+    string nombre_planeta=2;
+    string nombre_ciudad=3;
+    uint64 nuevo_valor=4;
+  }
+  message BrokerRes {
+    FulcrumAddress address = 0;
+  }
+  message FulcrumRes {
+    VectorClock vector = 0;
+  }
+
+  // HowManyRebelsBroker
+  message LeiaReq {
+    string nombre_planeta=2;
+    string nombre_ciudad=3;
+  }
+  message BrokerAmountRes {
+    FulcrumAddress address = 0;
+    VectorClock vector = 1;
+  }
