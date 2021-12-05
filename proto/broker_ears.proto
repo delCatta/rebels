@@ -30,7 +30,11 @@ service LightSpeedComms {
     Command comando = 1;
     string nombre_planeta=2;
     string nombre_ciudad=3;
-    uint64 nuevo_valor=4;
+    // uint64 nuevo_valor=4;
+	oneof nuevo_valor {
+		string nueva_ciudad = 4;
+		uint64 nuevos_rebeldes = 5;
+	}
   }
   message BrokerRes {
     FulcrumAddress address = 1;
