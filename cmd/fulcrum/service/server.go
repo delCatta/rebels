@@ -51,7 +51,6 @@ func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.Inform
 	}
 	defer log_registro.Close()
 
-
 	switch req.Comando {
 	case pb.InformanteReq_ADD:
 		// TODO(lucas): ¿logear aun si falla registrar la request?, de momento si
@@ -172,7 +171,7 @@ func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 		}
 
 		// en este caso si no habia registro del planeta entonces no hay una ciudad a la que
-		// cambiarle el nombre
+		// cambiarle el valor
 		return nil
 	}
 
@@ -222,8 +221,7 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 			Z: server.reloj.Z,
 		}
 
-		// en este caso si no habia registro del planeta entonces no hay una ciudad a la que
-		// cambiarle el nombre
+		// en este caso si no habia registro del planeta entonces no hay una ciudad que borrar
 		return nil
 	}
 
