@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package rebels.fulcrum;
+option go_package = "../pb";
+
+import "broker_ears.proto";
+
+service PropagacionCambios {
+	rpc Merge(MergeInfo) returns (MergeInfo) {}
+}
+
+message MergeInfo {
+	rebels.broker.VectorClock reloj = 1;
+	repeated rebels.broker.InformanteReq changelog = 2;
+}
+

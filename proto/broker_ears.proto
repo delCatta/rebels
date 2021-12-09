@@ -3,49 +3,59 @@ package rebels.broker;
 option go_package = "../pb";
 
 service LightSpeedComms {
-    rpc InformarBroker(InformanteReq) returns (BrokerRes) {}
-    rpc InformarFulcrum(InformanteReq) returns (FulcrumRes) {}
+  rpc InformarBroker(InformanteReq) returns (BrokerRes) {}
+  rpc InformarFulcrum(InformanteReq) returns (FulcrumRes) {}
 
-    rpc HowManyRebelsBroker(LeiaReq) returns (BrokerAmountRes) {}
+  rpc HowManyRebelsBroker(LeiaReq) returns (BrokerAmountRes) {}
 
-    // TODO: Comunicación Broker-Fulcrum
-  }
-  // Structs
-  message VectorClock {
-    int32 x=1;
-    int32 y=2;
-    int32 z=3;
-  }
-  message FulcrumAddress {
-    string address=1;
-  }
-  // Informar Broker e Informar Fulcrum
-  message InformanteReq {
-    enum Command {
-      ADD = 0;
-      NAME_UPDATE = 1;
-      NUMBER_UPDATE = 2;
-      DELETE = 3;
-    }
-    Command comando = 1;
-    string nombre_planeta=2;
-    string nombre_ciudad=3;
-    uint64 nuevo_valor=4;
-  }
-  message BrokerRes {
-    FulcrumAddress address = 1;
-  }
-  message FulcrumRes {
-    VectorClock vector = 2;
-  }
+  // TODO: Comunicación Broker-Fulcrum
+}
 
-  // HowManyRebelsBroker
-  message LeiaReq {
-    string nombre_planeta=1;
-    string nombre_ciudad=2;
+// Structs
+message VectorClock {
+  int32 x=1;
+  int32 y=2;
+  int32 z=3;
+}
+
+message FulcrumAddress {
+  string address=1;
+}
+
+// Informar Broker e Informar Fulcrum
+message InformanteReq {
+  enum Command {
+    ADD = 0;
+    NAME_UPDATE = 1;
+    NUMBER_UPDATE = 2;
+    DELETE = 3;
   }
-  message BrokerAmountRes {
-    FulcrumAddress address = 1;
-    VectorClock vector = 2;
-    uint64 amount = 3;
+  Command comando = 1;
+  string nombre_planeta=2;
+  string nombre_ciudad=3;
+  // uint64 nuevo_valor=4;
+  oneof nuevo_valor {
+  	string nueva_ciudad = 4;
+  	uint64 nuevos_rebeldes = 5;
   }
+}
+
+message BrokerRes {
+  FulcrumAddress address = 1;
+}
+
+message FulcrumRes {
+  VectorClock vector = 2;
+}
+
+// HowManyRebelsBroker
+message LeiaReq {
+  string nombre_planeta=1;
+  string nombre_ciudad=2;
+}
+
+message BrokerAmountRes {
+  FulcrumAddress address = 1;
+  VectorClock vector = 2;
+  uint64 amount = 3;
+}
