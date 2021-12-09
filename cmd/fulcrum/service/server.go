@@ -259,6 +259,16 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 	return nil
 }
 
+func (server *BrokerServer) HowManyRebelsBroker(ctx context.Context, req *pb.LeiaReq) (*pb.BrokerAmountRes, error) {
+	
+	response := &pb.BrokerAmountRes{
+		Address: // TODO
+		Vector:  // TODO
+		Amount:  // TODO
+	}
+	return response, nil
+}
+
 // TODO: Proto Comunications con Broker para redireccionar
 
 // TODO: Proto Comunications con otro Fulcrum para merges
