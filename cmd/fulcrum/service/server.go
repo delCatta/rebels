@@ -12,38 +12,40 @@ import (
 )
 
 type FulcrumServer struct {
-	fulcrum1 *pb.LightSpeedCommsClient
-	fulcrum2 *pb.LightSpeedCommsClient
-	fulcrum3 *pb.LightSpeedCommsClient
 	reloj    pb.VectorClock
 	planetas map[string]*pb.VectorClock
+    fulcrum1 *pb.PropagacionCambiosClient
+    fulcrum2 *pb.PropagacionCambiosClient
 	pb.UnimplementedLightSpeedCommsServer
+    pb.UnimplementedPropagacionCambiosServer
 }
 
+const (
+    archivo_log = "registro.log"
+)
+
 func NewFulcrumServer() *FulcrumServer {
-	// TODO: No conectarse consigo mismo...
 	return &FulcrumServer{
-		fulcrum1: NewFulcrumClient("IP 1 SIN PUERTO"),
-		fulcrum2: NewFulcrumClient("IP 2 SIN PUERTO"),
-		fulcrum3: NewFulcrumClient("IP 3 SIN PUERTO"),
 		reloj:    pb.VectorClock{},
 		planetas: make(map[string]*pb.VectorClock),
+        fulcrum1: NewFulcrumClient("IP FULCRUM 1"),
+        fulcrum2: NewFulcrumClient("IP FULCRUM 2"),
 	}
 }
-func NewFulcrumClient(address string) *pb.LightSpeedCommsClient {
+func NewFulcrumClient(address string) *pb.PropagacionCambiosClient {
 	conn, err := grpc.Dial(address+":3005", grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("Error connecting to %s: %e\n", address, err)
 		return nil
 	}
-	client := pb.NewLightSpeedCommsClient(conn)
+	client := pb.NewPropagacionCambiosClient(conn)
 	return &client
 }
 
 func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.InformanteReq) (*pb.FulcrumRes, error) {
 	// TODO: Almacenar la request y enviar el vector en la respuesta.
 
-	log_registro, err := os.OpenFile("registro.log", os.O_APPEND |os.O_CREATE, 0644)
+	log_registro, err := os.OpenFile(archivo_log, os.O_APPEND |os.O_CREATE, 0644)
 	if err != nil {
 		// esto no debiese ocurrir pero en caso que si no hay mucho que se pueda hacer
 		fmt.Printf("no se pudo abrir el log de registro: %v", err)

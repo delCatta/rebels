@@ -6,11 +6,22 @@ option go_package = "../pb";
 import "broker_ears.proto";
 
 service PropagacionCambios {
-	rpc Merge(MergeInfo) returns (MergeInfo) {}
+    rpc MergeBegin(MergeBeginReq) returns (MergeBeginRes) {}
+    rpc MergeEnd(MergeEndReq) returns (MergeEndRes) {}
 }
 
-message MergeInfo {
+message MergeBeginReq {
+}
+
+message MergeBeginRes {
 	rebels.broker.VectorClock reloj = 1;
 	repeated rebels.broker.InformanteReq changelog = 2;
 }
 
+message MergeEndReq {
+	rebels.broker.VectorClock reloj = 1;
+	repeated rebels.broker.InformanteReq changelog = 2;
+}
+
+message MergeEndRes {
+}
