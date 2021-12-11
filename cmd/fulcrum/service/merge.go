@@ -4,12 +4,36 @@ import (
 	"context"
 	"fmt"
 	"os"
+    "time"
 
 	"github.com/delCatta/rebels/pb"
 )
 
 type RegistroPlanetario struct {
 	ciudades map[string][]*pb.InformanteReq
+}
+
+func (server *FulcrumServer) propagarDatos() {
+    for {
+        time.Sleep(2 * time.Minute)
+        log1, err1 := server.getLog()
+        log2, err2 := server.fulcrum1.MergeBegin(context.Background(), &pb.MergeBeginReq{})
+        log3, err3 := server.fulcrum2.MergeBegin(context.Background(), &pb.MergeBeginReq{})
+        if err1 != nil || err2 != nil || err3 != nil {
+            fmt.Printf("no se ha podido obtener un log\n");
+            continue
+        }
+
+        merge_end, err := merge([3]*pb.MergeBeginRes{log1, log2, log3})
+        if err != nil {
+            fmt.Printf("no ha sido posible completar el merge: %v\n", err)
+            continue
+        }
+
+        server.integrateChanges(merge_end)
+        server.fulcrum1.MergeEnd(context.Background(), merge_end)
+        server.fulcrum2.MergeEnd(context.Background(), merge_end)
+    }
 }
 
 func merge(logs [3]*pb.MergeBeginRes) (*pb.MergeEndReq, error) {
@@ -46,7 +70,7 @@ func merge(logs [3]*pb.MergeBeginRes) (*pb.MergeEndReq, error) {
 	return merge_result, nil
 }
 
-func (server *FulcrumServer) MergeBegin(ctx context.Context, req *pb.MergeBeginReq) (*pb.MergeBeginRes, error) {
+func (server *FulcrumServer) getLog() (*pb.MergeBeginRes, error) {
     res := &pb.MergeBeginRes{ Reloj: &server.reloj }
     registro_log, err := os.OpenFile(archivo_log, os.O_RDONLY, 0644)
     if err != nil {
@@ -109,7 +133,7 @@ func (server *FulcrumServer) MergeBegin(ctx context.Context, req *pb.MergeBeginR
 	return res, nil
 }
 
-func (server *FulcrumServer) MergeEnd(ctx context.Context, req *pb.MergeEndReq) (*pb.MergeEndRes, error) {
+func (server *FulcrumServer) integrateChanges(req *pb.MergeEndReq) error {
     for _, comando := range req.Changelog {
         var err error
         switch comando.Comando {
@@ -129,8 +153,20 @@ func (server *FulcrumServer) MergeEnd(ctx context.Context, req *pb.MergeEndReq) 
 
         if err != nil {
             fmt.Println(err)
-            return nil, err
+            return err
         }
+    }
+    return nil
+}
+
+func (server *FulcrumServer) MergeBegin(ctx context.Context, req *pb.MergeBeginReq) (*pb.MergeBeginRes, error) {
+    return server.getLog()
+}
+
+func (server *FulcrumServer) MergeEnd(ctx context.Context, req *pb.MergeEndReq) (*pb.MergeEndRes, error) {
+    err := server.integrateChanges(req)
+    if err != nil {
+        return nil, err
     }
 	return &pb.MergeEndRes{}, nil
 }

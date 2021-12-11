@@ -14,8 +14,8 @@ import (
 type FulcrumServer struct {
 	reloj    pb.VectorClock
 	planetas map[string]*pb.VectorClock
-    fulcrum1 *pb.PropagacionCambiosClient
-    fulcrum2 *pb.PropagacionCambiosClient
+    fulcrum1 pb.PropagacionCambiosClient
+    fulcrum2 pb.PropagacionCambiosClient
 	pb.UnimplementedLightSpeedCommsServer
     pb.UnimplementedPropagacionCambiosServer
 }
@@ -32,14 +32,14 @@ func NewFulcrumServer() *FulcrumServer {
         fulcrum2: NewFulcrumClient("IP FULCRUM 2"),
 	}
 }
-func NewFulcrumClient(address string) *pb.PropagacionCambiosClient {
+func NewFulcrumClient(address string) pb.PropagacionCambiosClient {
 	conn, err := grpc.Dial(address+":3005", grpc.WithInsecure())
 	if err != nil {
 		fmt.Printf("Error connecting to %s: %e\n", address, err)
 		return nil
 	}
 	client := pb.NewPropagacionCambiosClient(conn)
-	return &client
+	return client
 }
 
 func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.InformanteReq) (*pb.FulcrumRes, error) {
