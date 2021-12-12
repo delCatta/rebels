@@ -84,30 +84,10 @@ func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.Inform
 }
 
 
+// Esto es porque me di cuenta que el agregar una ciudad necesita verificar que la ciudad no exista
+// previamente y eso es básicamente lo que hace el cambiar el valor
 func (server *FulcrumServer) agregarCiudad(req *pb.InformanteReq) error {
-	registro_planetario, err := os.OpenFile(req.NombrePlaneta, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0644);
-	if err != nil {
-		fmt.Printf("no se pudo abrir el registro planetario %v\n", err)
-		return err
-	}
-	defer registro_planetario.Close()
-
-	fmt.Fprintf(registro_planetario, "%v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.NuevoValor)
-
-	// revisamos existe ya el registro para el planeta correspondiente
-	_, existe := server.planetas[req.NombrePlaneta]
-	if !existe {
-		server.planetas[req.NombrePlaneta] = &pb.VectorClock{
-			X: server.reloj.X,
-			Y: server.reloj.Y,
-			Z: server.reloj.Z,
-		}
-	}
-
-	// TODO(lucas): sumarle 1 a la componente correspondiente al servidor
-	server.reloj.X += 1
-	server.planetas[req.NombrePlaneta].X += 1
-	return nil
+    return server.cambiarValor(req)
 }
 
 // NOTE(lucas): copiado de https://stackoverflow.com/questions/26152901/replace-a-line-in-text-file-golang
