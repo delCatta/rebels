@@ -156,6 +156,7 @@ func (server *FulcrumServer) integrateChanges(req *pb.MergeEndReq) error {
             return err
         }
     }
+    os.Remove(archivo_log)
     return nil
 }
 
