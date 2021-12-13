@@ -20,20 +20,20 @@ Instrucciones:
 - Iniciar el Broker `make b`
 
 
-## Máquina 2: NameNode
+## Máquina 2: Leia y Fulcrum
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f`.
 - Para ejecutar Leia: `make l`.
 
 
-## Máquina 3:
+## Máquina 3: Fulcrum
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f`.
 
   
-## Máquina 4:
+## Máquina 4: Informantes y Fulcrum
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f`.
