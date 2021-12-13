@@ -12,22 +12,32 @@ En todas las máquinas lo primero que se debe hacer es correr `make gen` para ge
 
 
 
-<!-- TODO -->
-## Máquina 1:
+## Máquina 1: Broker
 
 Instrucciones:
 
+- Correr `make gen`.
+- Iniciar el Broker `make b`
 
-## Máquina 2:
+
+## Máquina 2: NameNode
 Instrucciones:
+- Correr `make gen`.
+- Inicializar Fulcrum `make f`.
 
 
 ## Máquina 3:
 Instrucciones:
+- Correr `make gen`.
+- Inicializar Fulcrum `make f`.
 
   
 ## Máquina 4:
 Instrucciones:
+- Correr `make gen`.
+- Inicializar Fulcrum `make f`.
+- Para ejecutar Leia: `make l`.
+- Para ejecutar Informante `make i`.
 
 
 
