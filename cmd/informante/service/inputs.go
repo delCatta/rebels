@@ -35,8 +35,15 @@ func GetCommands(droid *Droid) {
 		}
 
 	} else {
-		number, err := strconv.ParseUint(val, 10, 64)
-		if err != nil {
+
+		var number uint64
+		var err error
+
+		number, err = strconv.ParseUint(val, 10, 64)
+		if key == pb.InformanteReq_ADD && err != nil {
+			number = 0
+			fmt.Printf("Assuming value for %s is: %v\n", command, number)
+		} else if err != nil {
 			fmt.Printf("Invalid value for the command: %s - Value: %s\n", command, val)
 			GetCommands(droid)
 			return
