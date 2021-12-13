@@ -34,6 +34,19 @@ func GetCommands(droid *Droid) {
 			return
 		}
 
+	} else if key == pb.InformanteReq_DELETE {
+		request := &pb.InformanteReq{
+			Comando:       key,
+			NombrePlaneta: planet,
+			NombreCiudad:  city,
+		}
+		err := sendRequest(droid, request)
+		if err != nil {
+			fmt.Printf("Error sending request: %s\n", err.Error())
+			GetCommands(droid)
+			return
+		}
+
 	} else {
 
 		var number uint64
