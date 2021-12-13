@@ -20,7 +20,6 @@ func main() {
 	}
 	fulcrumType := os.Args[1]
 
-	return
 	lis, err := net.Listen("tcp4", "0.0.0.0:3005") // Puerto 3005!
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
