@@ -23,7 +23,6 @@ func GetCommands(droid *Droid) {
 	_, err := droid.ToBroker(request)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 	GetCommands(droid)
 }

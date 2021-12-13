@@ -65,8 +65,7 @@ func (server *BrokerServer) HowManyRebelsBroker(ctx context.Context, req *pb.Lei
 			fulcrumClient = server.fulcrum3
 		}
 
-		request := &pb.LeiaReq{}
-		res, err := (*fulcrumClient).HowManyRebelsBroker(ctx, request)
+		res, err := (*fulcrumClient).HowManyRebelsBroker(ctx, req)
 		if err != nil {
 			fmt.Printf("Error calling HowManyRebels: %v\n", err.Error())
 			if i == 2 {
