@@ -26,13 +26,16 @@ const (
 )
 
 func NewFulcrumServer(fulcrumType string) *FulcrumServer {
-	return &FulcrumServer{
-		reloj:    pb.VectorClock{},
+    server := &FulcrumServer{
+        reloj:    pb.VectorClock{X: 0, Y: 0, Z: 0},
 		ftype:    fulcrumType,
 		planetas: make(map[string]*pb.VectorClock),
-		fulcrum1: NewFulcrumClient("10.6.43.142"),
-		fulcrum2: NewFulcrumClient("10.6.43.144"),
 	}
+    if fulcrumType == "Z" {
+		server.fulcrum1 = NewFulcrumClient("10.6.43.142")
+		server.fulcrum2 = NewFulcrumClient("10.6.43.144")
+    }
+    return server
 }
 func NewFulcrumClient(address string) pb.PropagacionCambiosClient {
 	conn, err := grpc.Dial(address+":3005", grpc.WithInsecure())
@@ -45,9 +48,7 @@ func NewFulcrumClient(address string) pb.PropagacionCambiosClient {
 }
 
 func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.InformanteReq) (*pb.FulcrumRes, error) {
-	// TODO: Almacenar la request y enviar el vector en la respuesta.
-
-	log_registro, err := os.OpenFile(archivo_log, os.O_APPEND|os.O_CREATE, 0644)
+	log_registro, err := os.OpenFile(archivo_log, os.O_APPEND | os.O_WRONLY | os.O_CREATE, 0644)
 	if err != nil {
 		// esto no debiese ocurrir pero en caso que si no hay mucho que se pueda hacer
 		fmt.Printf("no se pudo abrir el log de registro: %v", err)
@@ -57,25 +58,24 @@ func (server *FulcrumServer) InformarFulcrum(ctx context.Context, req *pb.Inform
 
 	switch req.Comando {
 	case pb.InformanteReq_ADD:
-		// TODO(lucas): ¿logear aun si falla registrar la request?, de momento si
-		fmt.Fprintf(log_registro, "AddCity %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
+        fmt.Fprintf(log_registro, "AddCity %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
+        fmt.Printf("AddCity %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
 		err = server.agregarCiudad(req)
-		break
 
 	case pb.InformanteReq_NAME_UPDATE:
 		fmt.Fprintf(log_registro, "UpdateName %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevaCiudad())
+		fmt.Printf("UpdateName %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevaCiudad())
 		err = server.cambiarNombre(req)
-		break
 
 	case pb.InformanteReq_NUMBER_UPDATE:
 		fmt.Fprintf(log_registro, "UpdateNumber %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
+		fmt.Printf("UpdateNumber %v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
 		err = server.cambiarValor(req)
-		break
 
 	case pb.InformanteReq_DELETE:
 		fmt.Fprintf(log_registro, "DeleteCity %v %v\n", req.NombrePlaneta, req.NombreCiudad)
+		fmt.Printf("DeleteCity %v %v\n", req.NombrePlaneta, req.NombreCiudad)
 		err = server.borrarCiudad(req)
-		break
 	}
 
 	if err != nil {
@@ -142,9 +142,7 @@ func (server *FulcrumServer) cambiarNombre(req *pb.InformanteReq) error {
 func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 	_, existe := server.planetas[req.NombrePlaneta]
 	err := server.sumarComponente(1, existe, req.NombrePlaneta)
-	if err != nil {
-		return nil
-	}
+
 	_registro_planetario, err := ioutil.ReadFile(req.NombrePlaneta)
 	if err != nil {
 		// misma situación que en cambiarNombre, si no existe el archivo, no es un error, solo hay
@@ -155,7 +153,7 @@ func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 				return err
 			}
 			defer registro_planetario.Close()
-			fmt.Fprintf(registro_planetario, "%v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevoValor())
+			fmt.Fprintf(registro_planetario, "%v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
 			return nil
 		}
 		fmt.Printf("no se pudo abrir el registro planetario %v\n", err)
@@ -171,35 +169,37 @@ func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 
 	tiene_ciudad := false
 	for i, entrada := range entradas {
-		_, err := fmt.Sscanf(entrada, "%v %v %v", &planeta, &ciudad, &rebeldes)
-		if err != nil {
-			break
-		}
+        if i == len(entradas) - 1 {
+            break;
+        }
+		fmt.Sscanf(entrada, "%v %v %v", &planeta, &ciudad, &rebeldes)
 		if ciudad == req.NombreCiudad {
 			entradas[i] = fmt.Sprintf("%v %v %v", planeta, req.NombreCiudad, req.GetNuevosRebeldes())
 			tiene_ciudad = true
+            break;
 		}
 	}
 
 	if !tiene_ciudad {
-		entradas = append(entradas, fmt.Sprintf("%v %v %v", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes()))
+		entradas[len(entradas) - 1] = fmt.Sprintf("%v %v %v\n", req.NombrePlaneta, req.NombreCiudad, req.GetNuevosRebeldes())
 	}
 
 	out_registro := strings.Join(entradas, "\n")
 	err = ioutil.WriteFile(req.NombrePlaneta, []byte(out_registro), 0644)
 	if err != nil {
-		fmt.Printf("no se pudo registrar el cambio de nombre: %v", err)
+		fmt.Printf("no se pudo registrar el cambio de valor: %v", err)
 		return err
 	}
 
 	return nil
 }
+
 func (server *FulcrumServer) sumarComponente(amount int, existe bool, nombrePlaneta string) error {
 	if !existe {
 		if server.ftype == "X" {
 			server.reloj.X += 1
 			server.planetas[nombrePlaneta] = &pb.VectorClock{
-				X: server.reloj.X + 1,
+				X: server.reloj.X,
 				Y: server.reloj.Y,
 				Z: server.reloj.Z,
 			}
@@ -208,7 +208,7 @@ func (server *FulcrumServer) sumarComponente(amount int, existe bool, nombrePlan
 			server.reloj.Y += 1
 			server.planetas[nombrePlaneta] = &pb.VectorClock{
 				X: server.reloj.X,
-				Y: server.reloj.Y + 1,
+				Y: server.reloj.Y,
 				Z: server.reloj.Z,
 			}
 		}
@@ -217,7 +217,7 @@ func (server *FulcrumServer) sumarComponente(amount int, existe bool, nombrePlan
 			server.planetas[nombrePlaneta] = &pb.VectorClock{
 				X: server.reloj.X,
 				Y: server.reloj.Y,
-				Z: server.reloj.Z + 1,
+				Z: server.reloj.Z,
 			}
 
 		}
@@ -263,17 +263,16 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 	ciudad := ""
 	var rebeldes uint64 = 0
 
-	for i, entrada := range entradas {
-		_, err := fmt.Sscanf(entrada, "%v %v %v", &planeta, &ciudad, &rebeldes)
-		if err != nil {
-			break
-		}
-		if ciudad == req.NombreCiudad {
-			entradas[i] = "" // NOTE(lucas): no se si esto resultará en una linea vacia
+    nuevo_registro := []string{}
+
+	for _, entrada := range entradas {
+		fmt.Sscanf(entrada, "%v %v %v", &planeta, &ciudad, &rebeldes)
+		if ciudad != req.NombreCiudad {
+            nuevo_registro = append(nuevo_registro, entrada)
 		}
 	}
 
-	out_registro := strings.Join(entradas, "\n")
+	out_registro := strings.Join(nuevo_registro, "\n")
 	err = ioutil.WriteFile(req.NombrePlaneta, []byte(out_registro), 0644)
 	if err != nil {
 		fmt.Printf("no se pudo registrar el cambio de nombre: %v", err)
