@@ -24,6 +24,7 @@ Instrucciones:
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f`.
+- Para ejecutar Leia: `make l`.
 
 
 ## Máquina 3:
@@ -36,7 +37,6 @@ Instrucciones:
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f`.
-- Para ejecutar Leia: `make l`.
 - Para ejecutar Informante `make i`.
 
 
