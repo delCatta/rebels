@@ -22,7 +22,8 @@ type FulcrumServer struct {
 }
 
 const (
-	archivo_log = "registro.log"
+	archivo_log = "cambios.log"
+    carpeta_registros = "registros/"
 )
 
 func NewFulcrumServer(fulcrumType string) *FulcrumServer {
@@ -100,7 +101,7 @@ func (server *FulcrumServer) cambiarNombre(req *pb.InformanteReq) error {
 		return nil
 	}
 
-	_registro_planetario, err := ioutil.ReadFile(req.NombrePlaneta)
+	_registro_planetario, err := ioutil.ReadFile(carpeta_registros + req.NombrePlaneta)
 	if err != nil {
 		// puede darse la situacion donde el planeta tenga un reloj asociado pero no un archivo,
 		// esto no debe ser tratado como un error, solo que ninguna operación que genere un archivo
@@ -130,7 +131,7 @@ func (server *FulcrumServer) cambiarNombre(req *pb.InformanteReq) error {
 	}
 
 	out_registro := strings.Join(entradas, "\n")
-	err = ioutil.WriteFile(req.NombrePlaneta, []byte(out_registro), 0644)
+	err = ioutil.WriteFile(carpeta_registros + req.NombrePlaneta, []byte(out_registro), 0644)
 	if err != nil {
 		fmt.Printf("no se pudo registrar el cambio de nombre: %v", err)
 		return err
@@ -143,12 +144,12 @@ func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 	_, existe := server.planetas[req.NombrePlaneta]
 	err := server.sumarComponente(1, existe, req.NombrePlaneta)
 
-	_registro_planetario, err := ioutil.ReadFile(req.NombrePlaneta)
+	_registro_planetario, err := ioutil.ReadFile(carpeta_registros + req.NombrePlaneta)
 	if err != nil {
 		// misma situación que en cambiarNombre, si no existe el archivo, no es un error, solo hay
 		// que agregar la entrada
 		if os.IsNotExist(err) {
-			registro_planetario, err := os.OpenFile(req.NombrePlaneta, os.O_WRONLY|os.O_CREATE, 0644)
+			registro_planetario, err := os.OpenFile(carpeta_registros + req.NombrePlaneta, os.O_WRONLY|os.O_CREATE, 0644)
 			if err != nil {
 				return err
 			}
@@ -185,7 +186,7 @@ func (server *FulcrumServer) cambiarValor(req *pb.InformanteReq) error {
 	}
 
 	out_registro := strings.Join(entradas, "\n")
-	err = ioutil.WriteFile(req.NombrePlaneta, []byte(out_registro), 0644)
+	err = ioutil.WriteFile(carpeta_registros + req.NombrePlaneta, []byte(out_registro), 0644)
 	if err != nil {
 		fmt.Printf("no se pudo registrar el cambio de valor: %v", err)
 		return err
@@ -247,7 +248,7 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 		return nil
 	}
 
-	_registro_planetario, err := ioutil.ReadFile(req.NombrePlaneta)
+	_registro_planetario, err := ioutil.ReadFile(carpeta_registros + req.NombrePlaneta)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -273,7 +274,7 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 	}
 
 	out_registro := strings.Join(nuevo_registro, "\n")
-	err = ioutil.WriteFile(req.NombrePlaneta, []byte(out_registro), 0644)
+	err = ioutil.WriteFile(carpeta_registros + req.NombrePlaneta, []byte(out_registro), 0644)
 	if err != nil {
 		fmt.Printf("no se pudo registrar el cambio de nombre: %v", err)
 		return err
@@ -283,7 +284,7 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 }
 
 func (server *FulcrumServer) HowManyRebelsBroker(ctx context.Context, req *pb.LeiaReq) (*pb.BrokerAmountRes, error) {
-	registro, err := os.OpenFile(req.NombrePlaneta, os.O_RDONLY, 0644)
+	registro, err := os.OpenFile(carpeta_registros + req.NombrePlaneta, os.O_RDONLY, 0644)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("no hay registro de este planeta en este nodo")
