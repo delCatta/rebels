@@ -29,7 +29,7 @@ func main() {
 	pb.RegisterLightSpeedCommsServer(grpcServer, fulcrumServer)
 
 	wg := new(sync.WaitGroup)
-	if fulcrumType == "x" || fulcrumType == "y" {
+	if fulcrumType == "X" || fulcrumType == "Y" {
 		pb.RegisterPropagacionCambiosServer(grpcServer, fulcrumServer)
 	} else {
 

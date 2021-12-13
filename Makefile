@@ -8,11 +8,11 @@ l:
 b:
 	go run ./cmd/broker/main.go	
 f2:
-	go run ./cmd/fulcrum/main.go x
+	go run ./cmd/fulcrum/main.go X
 f3:
-	go run ./cmd/fulcrum/main.go z
+	go run ./cmd/fulcrum/main.go Z
 f4:
-	go run ./cmd/fulcrum/main.go y
+	go run ./cmd/fulcrum/main.go Y
 	
 clean: 
 	rm ./pb/*.go
