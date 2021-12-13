@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/delCatta/rebels/pb"
 )
@@ -20,6 +21,7 @@ func (droid *Droid) ToBroker(req *pb.LeiaReq) (*pb.BrokerAmountRes, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(res.GetAmount())
 	droid.data.Save(req, res)
 	return res, nil
 }
