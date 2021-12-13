@@ -28,14 +28,13 @@ type RV struct {
 
 func (data *DroidData) Save(req *pb.InformanteReq, res *pb.FulcrumRes, address *pb.FulcrumAddress) {
 	rv := &RV{req: req, vector: res.GetVector()}
-
+	fmt.Println(res, res.GetVector())
 	data.mutex.Lock()
 	defer data.mutex.Unlock()
 
 	data.registers = append(data.registers, rv)
 	data.lastAddress[rv.identifier()] = address
-	// TODO: Notify Saved Data!
-	fmt.Println(data.registers)
+	fmt.Println("Request received successfully.")
 }
 
 func (rv *RV) identifier() string {
