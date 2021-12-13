@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/delCatta/rebels/pb"
@@ -34,6 +35,7 @@ func (data *DroidData) Save(req *pb.InformanteReq, res *pb.FulcrumRes, address *
 	data.registers = append(data.registers, rv)
 	data.lastAddress[rv.identifier()] = address
 	// TODO: Notify Saved Data!
+	fmt.Println(data.registers)
 }
 
 func (rv *RV) identifier() string {
