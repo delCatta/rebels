@@ -233,7 +233,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 				NombreCiudad:  ciudad,
 			})
 			break
-		case "UpdateValue":
+		case "UpdateNumber":
 			var rebeldes uint64
 			fmt.Fscanf(registro_log, "%v\n", &rebeldes)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
