@@ -13,7 +13,7 @@ type RegistroPlanetario struct {
 	ciudades map[string][]*pb.InformanteReq
 }
 
-func (server *FulcrumServer) propagarCambios() {
+func (server *FulcrumServer) PropagarCambios() {
 	for {
 		time.Sleep(2 * time.Minute)
 		log1, err1 := server.obtenerLog()

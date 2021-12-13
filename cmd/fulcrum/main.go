@@ -37,7 +37,7 @@ func main() {
 		wg.Add(1)
 
 		go func() {
-			fulcrumServer.propagarCambios()
+			fulcrumServer.PropagarCambios()
 			wg.Done()
 		}()
 	}

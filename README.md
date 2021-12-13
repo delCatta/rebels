@@ -23,20 +23,20 @@ Instrucciones:
 ## Máquina 2: Leia y Fulcrum
 Instrucciones:
 - Correr `make gen`.
-- Inicializar Fulcrum `make f`.
+- Inicializar Fulcrum `make f2`.
 - Para ejecutar Leia: `make l`.
 
 
 ## Máquina 3: Fulcrum
 Instrucciones:
 - Correr `make gen`.
-- Inicializar Fulcrum `make f`.
+- Inicializar Fulcrum `make f3`.
 
   
 ## Máquina 4: Informantes y Fulcrum
 Instrucciones:
 - Correr `make gen`.
-- Inicializar Fulcrum `make f`.
+- Inicializar Fulcrum `make f4`.
 - Para ejecutar Informante `make i`.
 
 
