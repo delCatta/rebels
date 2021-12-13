@@ -118,7 +118,7 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 
 	// mergeamos los cambios restantes.
 	// en este punto no hay nada que puede generar conflictos en log1
-	for i := mergeado_hasta[1]; i < len2; i++ {
+	for i := mergeado_hasta[1] + 1; i < len2; i++ {
 		cambio := log2[i]
 		switch cambio.Comando {
 		case pb.InformanteReq_ADD:
@@ -250,7 +250,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 			break
 		case "UpdateName":
 			var nueva_ciudad string
-			fmt.Fscanf(registro_log, " %v\n", &nueva_ciudad)
+			fmt.Fscanf(registro_log, "%v\n", &nueva_ciudad)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_NAME_UPDATE,
 				NombrePlaneta: planeta,
