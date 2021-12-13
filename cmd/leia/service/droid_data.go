@@ -35,7 +35,6 @@ func (data *DroidData) Save(req *pb.LeiaReq, res *pb.BrokerAmountRes) {
 	data.registers = append(data.registers, rv)
 	data.lastAddress[rv.identifier()] = res.GetAddress()
 	// TODO: Notify Saved Data!
-	fmt.Println(data.registers)
 }
 
 func (rv *RV) identifier() string {

@@ -126,8 +126,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 			if pos != -1 {
 				res = append(res, log2[mergeado_hasta[1]:i+1]...)
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[1] = i
+				mergeado_hasta[0] = pos
 			}
 			break
 		case pb.InformanteReq_DELETE:
@@ -135,8 +135,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 			if pos != -1 {
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
 				res = append(res, log2[mergeado_hasta[1]:i+1]...)
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[1] = i
+				mergeado_hasta[0] = pos
 			}
 			break
 		case pb.InformanteReq_NAME_UPDATE:
@@ -215,14 +215,14 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 		comando := ""
 		planeta := ""
 		ciudad := ""
-		_, err = fmt.Fscanf(registro_log, "%v %v %v ", &comando, &planeta, &ciudad)
+		_, err = fmt.Fscanf(registro_log, "%v %v %v", &comando, &planeta, &ciudad)
 		if err != nil {
 			break
 		}
 		switch comando {
 		case "AddCity":
 			var rebeldes uint64
-			fmt.Fscanf(registro_log, "%v\n", &rebeldes)
+			fmt.Fscanf(registro_log, " %v\n", &rebeldes)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_ADD,
 				NombrePlaneta: planeta,
@@ -240,7 +240,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 			break
 		case "UpdateNumber":
 			var rebeldes uint64
-			fmt.Fscanf(registro_log, "%v\n", &rebeldes)
+			fmt.Fscanf(registro_log, " %v\n", &rebeldes)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_NUMBER_UPDATE,
 				NombrePlaneta: planeta,
@@ -250,7 +250,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 			break
 		case "UpdateName":
 			var nueva_ciudad string
-			fmt.Fscanf(registro_log, "%v\n", &nueva_ciudad)
+			fmt.Fscanf(registro_log, " %v\n", &nueva_ciudad)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_NAME_UPDATE,
 				NombrePlaneta: planeta,
