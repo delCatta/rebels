@@ -22,9 +22,9 @@ func NewBrokerServer() *BrokerServer {
 	brokerServer := &BrokerServer{
 		addresses: map[*pb.LightSpeedCommsClient]*pb.FulcrumAddress{},
 	}
-	brokerServer.fulcrum1 = NewFulcrumClient("IP 1 SIN PUERTO", brokerServer)
-	brokerServer.fulcrum2 = NewFulcrumClient("IP 2 SIN PUERTO", brokerServer)
-	brokerServer.fulcrum3 = NewFulcrumClient("IP 3 SIN PUERTO", brokerServer)
+	brokerServer.fulcrum1 = NewFulcrumClient("10.6.43.142", brokerServer)
+	brokerServer.fulcrum2 = NewFulcrumClient("10.6.43.143", brokerServer)
+	brokerServer.fulcrum3 = NewFulcrumClient("10.6.43.144", brokerServer)
 	return brokerServer
 }
 func NewFulcrumClient(address string, server *BrokerServer) *pb.LightSpeedCommsClient {
@@ -50,19 +50,38 @@ func (server *BrokerServer) InformarBroker(ctx context.Context, req *pb.Informan
 }
 
 func (server *BrokerServer) HowManyRebelsBroker(ctx context.Context, req *pb.LeiaReq) (*pb.BrokerAmountRes, error) {
-	fulcrumClient := server.pickAClient()
-	request := &pb.LeiaReq{}
-	res, err := (*fulcrumClient).HowManyRebelsBroker(ctx, request)
-	if err != nil {
-		fmt.Printf("Error calling HowManyRebels: %e\n", err)
-		return nil, err
+	for i := 0; i < 3; i++ {
+		var fulcrumClient *pb.LightSpeedCommsClient
+		if i == 0 {
+			fmt.Println("fulcrum1")
+			fulcrumClient = server.fulcrum1
+		}
+		if i == 1 {
+			fmt.Println("fulcrum2")
+			fulcrumClient = server.fulcrum2
+		}
+		if i == 2 {
+			fmt.Println("fulcrum3")
+			fulcrumClient = server.fulcrum3
+		}
+
+		request := &pb.LeiaReq{}
+		res, err := (*fulcrumClient).HowManyRebelsBroker(ctx, request)
+		if err != nil {
+			fmt.Printf("Error calling HowManyRebels: %v\n", err.Error())
+			if i == 2 {
+				return nil, err
+			}
+			continue
+		}
+		response := &pb.BrokerAmountRes{
+			Address: server.addresses[fulcrumClient],
+			Vector:  res.GetVector(),
+			Amount:  res.GetAmount(),
+		}
+		return response, nil
 	}
-	response := &pb.BrokerAmountRes{
-		Address: server.addresses[fulcrumClient],
-		Vector:  res.GetVector(),
-		Amount:  res.GetAmount(),
-	}
-	return response, nil
+	return nil, nil
 }
 
 func (server *BrokerServer) pickAClient() *pb.LightSpeedCommsClient {
