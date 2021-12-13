@@ -285,7 +285,9 @@ func (server *FulcrumServer) borrarCiudad(req *pb.InformanteReq) error {
 
 func (server *FulcrumServer) HowManyRebelsBroker(ctx context.Context, req *pb.LeiaReq) (*pb.BrokerAmountRes, error) {
 	registro, err := os.OpenFile(carpeta_registros + req.NombrePlaneta, os.O_RDONLY, 0644)
+    fmt.Printf("buscando archivo %s\n", carpeta_registros +  req.NombrePlaneta)
 	if err != nil {
+        fmt.Printf("error: %v\n", err)
 		if os.IsNotExist(err) {
 			return nil, fmt.Errorf("no hay registro de este planeta en este nodo")
 		} else {
