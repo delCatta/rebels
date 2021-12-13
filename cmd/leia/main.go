@@ -11,7 +11,7 @@ import (
 func main() {
 	// Connecting to Broker
 	log.Println("Iniciando Leia Organa...")
-	client := brokerClient("localhost:3033")
+	client := brokerClient("10.6.43.141:3033")
 	if client == nil {
 		log.Println("Broker not available (Connection Refused)...")
 		return

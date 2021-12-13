@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", "localhost:3003") // Puerto 3003!
+	lis, err := net.Listen("tcp", "0.0.0.0:3003") // Puerto 3003!
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

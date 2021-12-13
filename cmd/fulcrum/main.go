@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
-    // "sync"
+	"os"
+	"sync"
+
+	// "sync"
 
 	"github.com/delCatta/rebels/cmd/fulcrum/service"
 	"github.com/delCatta/rebels/pb"
@@ -11,26 +15,33 @@ import (
 )
 
 func main() {
-	lis, err := net.Listen("tcp4", "localhost:3005") // Puerto 3005!
+	if len(os.Args) < 2 {
+		fmt.Println("Se necesita identificar el tipo de Fulcrum.")
+	}
+	fulcrumType := os.Args[1]
+
+	return
+	lis, err := net.Listen("tcp4", "0.0.0.0:3005") // Puerto 3005!
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	fulcrumServer := service.NewFulcrumServer() 
+	fulcrumServer := service.NewFulcrumServer(fulcrumType)
 	pb.RegisterLightSpeedCommsServer(grpcServer, fulcrumServer)
 
-    // 2 de los fulcrum necesitan esta linea
-    pb.RegisterPropagacionCambiosServer(grpcServer, fulcrumServer)
+	wg := new(sync.WaitGroup)
+	if fulcrumType == "x" || fulcrumType == "y" {
+		pb.RegisterPropagacionCambiosServer(grpcServer, fulcrumServer)
+	} else {
 
-    // el tercero necesita esto:
-    // wg := new(sync.WaitGroup)
-    // wg.Add(1)
+		wg.Add(1)
 
-    // go func() {
-    //     fulcrumServer.propagarCambios()
-    //     wg.Done()
-    // }()
+		go func() {
+			fulcrumServer.propagarCambios()
+			wg.Done()
+		}()
+	}
 	grpcServer.Serve(lis)
+	wg.Wait()
 
-    // wg.Wait()
 }
