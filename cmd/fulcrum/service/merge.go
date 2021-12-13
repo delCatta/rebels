@@ -202,8 +202,13 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 	res := &pb.MergeBeginRes{Reloj: &server.reloj}
 	registro_log, err := os.OpenFile(archivo_log, os.O_RDONLY, 0644)
 	if err != nil {
-		fmt.Printf("no se ha podido abrir el archivo de registro: %v\n", err)
-		return nil, err
+        if (os.IsNotExist(err)) {
+            fmt.Printf("este fulcrum no tiene un log\n")
+            return res, nil
+        } else {
+            fmt.Printf("no se ha podido abrir el log: %v\n", err)
+            return nil, err
+        }
 	}
 	defer registro_log.Close()
 	for {
