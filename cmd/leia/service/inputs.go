@@ -26,7 +26,6 @@ func GetCommands(droid *Droid) {
 		return
 	}
 	GetCommands(droid)
-
 }
 
 func IsValidCommand(command string) bool {

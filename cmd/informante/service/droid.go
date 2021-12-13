@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/delCatta/rebels/pb"
 	"google.golang.org/grpc"
@@ -37,7 +38,8 @@ func (droid *Droid) toServer(address *pb.FulcrumAddress, req *pb.InformanteReq) 
 }
 
 func fulcrumClient(ipAddress *pb.FulcrumAddress) (pb.LightSpeedCommsClient, error) {
-	conn, err := grpc.Dial(ipAddress.GetAddress(), grpc.WithInsecure())
+	fmt.Printf("Connecting with Fulcrum: %s \n", ipAddress.GetAddress())
+	conn, err := grpc.Dial(ipAddress.GetAddress()+":3005", grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
