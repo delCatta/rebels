@@ -259,7 +259,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 		switch comando {
 		case "AddCity":
 			var rebeldes uint64
-			fmt.Fscanf(registro_log, " %v\n", &rebeldes)
+			fmt.Fscanf(registro_log, "%v\n", &rebeldes)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_ADD,
 				NombrePlaneta: planeta,
@@ -277,7 +277,7 @@ func (server *FulcrumServer) obtenerLog() (*pb.MergeBeginRes, error) {
 			break
 		case "UpdateNumber":
 			var rebeldes uint64
-			fmt.Fscanf(registro_log, " %v\n", &rebeldes)
+			fmt.Fscanf(registro_log, "%v\n", &rebeldes)
 			res.Changelog = append(res.Changelog, &pb.InformanteReq{
 				Comando:       pb.InformanteReq_NUMBER_UPDATE,
 				NombrePlaneta: planeta,
