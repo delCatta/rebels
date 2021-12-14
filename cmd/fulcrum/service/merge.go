@@ -9,8 +9,12 @@ import (
 	"github.com/delCatta/rebels/pb"
 )
 
-type RegistroPlanetario struct {
-	ciudades map[string][]*pb.InformanteReq
+type Cambio struct {
+    Comando pb.InformanteReq_Command
+    NombrePlaneta string
+    NombreCiudad string
+    NuevaCiudad string
+    NuevosRebeldes uint64
 }
 
 func (server *FulcrumServer) PropagarCambios() {
@@ -44,15 +48,48 @@ func (server *FulcrumServer) PropagarCambios() {
 
 func merge(logs [3]*pb.MergeBeginRes) (*pb.MergeEndReq, error) {
 	merge_result := &pb.MergeEndReq{}
-	tmp := mergeEntre2Logs(logs[0].Changelog, logs[1].Changelog)
-	merge_result.Changelog = mergeEntre2Logs(tmp, logs[2].Changelog)
+    _new_changelogs := [3][]Cambio{}
+    for i := 0; i < 3; i++ {
+        for j := 0; j < len(logs[i].Changelog); j++ {
+            _new_changelogs[i] = append(_new_changelogs[i], Cambio{
+                Comando: logs[i].Changelog[j].Comando,
+                NombrePlaneta: logs[i].Changelog[j].NombrePlaneta,
+                NombreCiudad: logs[i].Changelog[j].NombreCiudad,
+            })
+            if (_new_changelogs[i][j].Comando != pb.InformanteReq_NAME_UPDATE) {
+                _new_changelogs[i][j].NuevosRebeldes = logs[i].Changelog[j].GetNuevosRebeldes() 
+            } else {
+                _new_changelogs[i][j].NuevaCiudad = logs[i].Changelog[j].GetNuevaCiudad()
+            }
+        }
+    }
+	tmp := mergeEntre2Logs(_new_changelogs[0], _new_changelogs[1])
+    final := mergeEntre2Logs(tmp, _new_changelogs[2])
+
+    for i, cambio := range final {
+        merge_result.Changelog = append(merge_result.Changelog, &pb.InformanteReq{
+            Comando: cambio.Comando,
+            NombrePlaneta: cambio.NombrePlaneta,
+            NombreCiudad: cambio.NombreCiudad,
+        })
+        if cambio.Comando != pb.InformanteReq_NAME_UPDATE {
+            merge_result.Changelog[i].NuevoValor = &pb.InformanteReq_NuevosRebeldes{
+                NuevosRebeldes: cambio.NuevosRebeldes,
+            }
+        } else {
+            merge_result.Changelog[i].NuevoValor = &pb.InformanteReq_NuevaCiudad{
+                NuevaCiudad: cambio.NuevaCiudad,
+            }
+        }
+    }
+
 	return merge_result, nil
 }
 
-func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.InformanteReq {
+func mergeEntre2Logs(log1 []Cambio, log2 []Cambio) []Cambio {
 	len1 := len(log1)
 	len2 := len(log2)
-	res := make([]*pb.InformanteReq, 0, len1+len2)
+	res := make([]Cambio, 0, len1+len2)
 
 	mergeado_hasta := [2]int{0, 0}
 
@@ -66,8 +103,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 				res = append(res, mergeEntre2Logs(log2[mergeado_hasta[1]:pos], log1[mergeado_hasta[0]:i])...)
 				res = append(res, log1[i])
 				res = append(res, log2[pos])
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1
+				mergeado_hasta[1] = pos + 1
 			}
 			break
 		case pb.InformanteReq_DELETE:
@@ -78,8 +115,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 				res = append(res, mergeEntre2Logs(log2[mergeado_hasta[1]:pos], log1[mergeado_hasta[0]:i])...)
 				res = append(res, log2[pos])
 				res = append(res, log1[i])
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1 
+				mergeado_hasta[1] = pos + 1
 			}
 			break
 		case pb.InformanteReq_NAME_UPDATE:
@@ -93,20 +130,20 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 
 				res = append(res, log2[pos])
 				res = append(res, log1[i])
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1
+				mergeado_hasta[1] = pos + 1
 			}
 
 			// los anteriores a que se ocupe el nuevo nombre deben ser mergeados despues
-			pos = primeraAparicion(log2[mergeado_hasta[1]:], cambio.GetNuevaCiudad())
+			pos = primeraAparicion(log2[mergeado_hasta[1]:], cambio.NuevaCiudad)
 			if pos != -1 {
 				if !mergeado_actual {
 					res = append(res, mergeEntre2Logs(log2[mergeado_hasta[1]:pos], log1[mergeado_hasta[0]:i])...)
 				}
 				res = append(res, log1[i])
 				res = append(res, log2[pos])
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1
+				mergeado_hasta[1] = pos + 1
 			}
 			break
 		case pb.InformanteReq_NUMBER_UPDATE:
@@ -126,8 +163,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 			if pos != -1 {
 				res = append(res, log2[mergeado_hasta[1]:i+1]...)
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
-				mergeado_hasta[1] = i
-				mergeado_hasta[0] = pos
+				mergeado_hasta[1] = i + 1
+				mergeado_hasta[0] = pos + 1
 			}
 			break
 		case pb.InformanteReq_DELETE:
@@ -135,8 +172,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 			if pos != -1 {
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
 				res = append(res, log2[mergeado_hasta[1]:i+1]...)
-				mergeado_hasta[1] = i
-				mergeado_hasta[0] = pos
+				mergeado_hasta[1] = i + 1
+				mergeado_hasta[0] = pos + 1
 			}
 			break
 		case pb.InformanteReq_NAME_UPDATE:
@@ -145,8 +182,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 			if pos != -1 {
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
 				res = append(res, log2[mergeado_hasta[1]:i+1]...)
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1
+				mergeado_hasta[1] = pos + 1
 
 				mergeado_actual = true
 			}
@@ -157,8 +194,8 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 					res = append(res, log2[mergeado_hasta[1]:i+1]...)
 				}
 				res = append(res, log1[mergeado_hasta[0]:pos+1]...)
-				mergeado_hasta[0] = i
-				mergeado_hasta[1] = pos
+				mergeado_hasta[0] = i + 1 
+				mergeado_hasta[1] = pos + 1
 			}
 
 			break
@@ -173,7 +210,7 @@ func mergeEntre2Logs(log1 []*pb.InformanteReq, log2 []*pb.InformanteReq) []*pb.I
 	return res
 }
 
-func primeraAparicion(log []*pb.InformanteReq, ciudad string) int {
+func primeraAparicion(log []Cambio, ciudad string) int {
 	for i, cambio := range log {
 		if cambio.NombreCiudad == ciudad {
 			return i
@@ -182,7 +219,7 @@ func primeraAparicion(log []*pb.InformanteReq, ciudad string) int {
 	return -1
 }
 
-func ultimaAparicion(log []*pb.InformanteReq, ciudad string) int {
+func ultimaAparicion(log []Cambio, ciudad string) int {
 	for i := len(log) - 1; i >= 0; i-- {
 		cambio := log[i]
 		if cambio.NombreCiudad == ciudad {
@@ -191,7 +228,7 @@ func ultimaAparicion(log []*pb.InformanteReq, ciudad string) int {
 
 		// en primeraAparicion no verificamos este caso porque implica algo que no debiera poder
 		// ocurrir o que puede ser solucionado por una llamada sucesiva a mergeEntre2Logs
-		if cambio.Comando == pb.InformanteReq_NAME_UPDATE && cambio.GetNuevaCiudad() == ciudad {
+		if cambio.Comando == pb.InformanteReq_NAME_UPDATE && cambio.NuevaCiudad == ciudad {
 			return i
 		}
 	}
