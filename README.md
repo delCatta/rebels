@@ -13,9 +13,9 @@ En todas las máquinas lo primero que se debe hacer es correr `make gen` para ge
 
 
 ## Máquina 1: Broker
+Importante: Asegurarse de que estan corriendo primero los 3 fulcrum antes de iniciar el Broker
 
 Instrucciones:
-
 - Correr `make gen`.
 - Iniciar el Broker `make b`
 
@@ -28,6 +28,7 @@ Instrucciones:
 
 
 ## Máquina 3: Fulcrum
+Importante: asegurarse de estar corriendo los fulcrum f2 y f4, de las maquinas 2 y 4 respectivamente antes de inicial el fulcrum f3
 Instrucciones:
 - Correr `make gen`.
 - Inicializar Fulcrum `make f3`.
@@ -43,7 +44,7 @@ Instrucciones:
 *Nota Importante:* lo expuesto anteriormente son las instrucciones por máquina,
 el orden en que se deben instanciar los procesos es:
 ```
-make f2 y make f4 -> make f3 -> make b -> make i y make l
+Maquina 2: make f2 y Maquina: 4 make f4 -> Maquina 3: make f3 -> Maquina 1: make b ->  Maquina 4: make i y Maquina 2: make l
 ```
 
 ## Consideraciones sobre el Merge

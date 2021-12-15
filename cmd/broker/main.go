@@ -14,8 +14,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
-	brokerServer := service.NewBrokerServer() // TODO: Implement this BrokerServer
-	pb.RegisterLightSpeedCommsServer(grpcServer, brokerServer)
-	grpcServer.Serve(lis)
+	grpcServer := grpc.NewServer()                             // Crea un servidor de grpc
+	brokerServer := service.NewBrokerServer()                  // Crea un servidor de broker
+	pb.RegisterLightSpeedCommsServer(grpcServer, brokerServer) // Registra el servidor de grpc en el servidor de broker
+	grpcServer.Serve(lis)                                      // Inicia el servidor de grpc
 }
