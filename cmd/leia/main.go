@@ -9,14 +9,16 @@ import (
 )
 
 func main() {
-	// Connecting to Broker
 	log.Println("Iniciando Leia Organa...")
+	// Connecting with Broker
 	client := brokerClient("10.6.43.141:3033")
 	if client == nil {
 		log.Println("Broker not available (Connection Refused)...")
 		return
 	}
+	// Droid helps run the Broker Requests
 	droid := service.NewDroid(client)
+	// Service starts commands loop.
 	service.GetCommands(droid)
 }
 

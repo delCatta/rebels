@@ -14,6 +14,7 @@ type DroidData struct {
 }
 
 func NewDroidData() *DroidData {
+	// Droid data is where the Droid's data is stored! Acts as memory
 	return &DroidData{
 		mutex:       &sync.RWMutex{},
 		registers:   []*RV{},
@@ -22,10 +23,12 @@ func NewDroidData() *DroidData {
 }
 
 type RV struct {
+	// Data structured to be stored.
 	req    *pb.InformanteReq
 	vector *pb.VectorClock
 }
 
+// Method to store the RV Data structure
 func (data *DroidData) Save(req *pb.InformanteReq, res *pb.FulcrumRes, address *pb.FulcrumAddress) {
 	rv := &RV{req: req, vector: res.GetVector()}
 	fmt.Println(res, res.GetVector())
@@ -37,6 +40,7 @@ func (data *DroidData) Save(req *pb.InformanteReq, res *pb.FulcrumRes, address *
 	fmt.Println("Request received successfully.")
 }
 
+// A Way to identify the data that got saved.
 func (rv *RV) identifier() string {
 	return rv.req.NombrePlaneta + "-" + rv.req.NombreCiudad
 }

@@ -8,6 +8,8 @@ import (
 )
 
 func GetCommands(droid *Droid) {
+	// Given a valid command and its arguments, it sends a request
+	// and asks in a loop for another command.
 	var command, planet, city string
 	var val string
 	fmt.Print("Type your command (CNTR+C to exit): ")
@@ -70,12 +72,13 @@ func GetCommands(droid *Droid) {
 		err = sendRequest(droid, request)
 		if err != nil {
 			fmt.Printf("Error sending request: %s\n", err.Error())
+			// Loops
 			GetCommands(droid)
 			return
 		}
 
 	}
-
+	// Loops
 	GetCommands(droid)
 
 }
@@ -89,6 +92,7 @@ func sendRequest(droid *Droid, request *pb.InformanteReq) error {
 }
 
 func IsValidCommand(command string) (bool, pb.InformanteReq_Command) {
+	// Checks if the given command is valid and helps setting it's key.
 	switch command {
 	case "AddCity":
 		return true, pb.InformanteReq_ADD
@@ -99,5 +103,5 @@ func IsValidCommand(command string) (bool, pb.InformanteReq_Command) {
 	case "DeleteCity":
 		return true, pb.InformanteReq_DELETE
 	}
-	return false, pb.InformanteReq_ADD
+	return false, pb.InformanteReq_ADD // Placeholder.
 }
