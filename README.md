@@ -40,4 +40,22 @@ Instrucciones:
 - Para ejecutar Informante `make i`.
 
 
+*Nota Importante:* lo expuesto anteriormente son las instrucciones por máquina,
+el orden en que se deben instanciar los procesos es:
+```
+make f2 y make f4 -> make f3 -> make b -> make i y make l
+```
 
+## Consideraciones sobre el Merge
+
+La manera en que resuelve conflictos el merge es que determina un orden lógico 
+en el que deben ocurrir los cambios sobre un archivo ocupando como referencia 
+las instrucciones AddCity, UpdateName y DeleteCity (ej: si encuentra un 
+AddCity en el log entonces se determina que la primera mención de esa ciudad en 
+los otros se determina que ocurre inmediatamente despues. Realiza un proceso 
+similar con UpdateName y DeleteCity), el problema ocurre si el conflicto es 
+entre cual UpdateNumber ocurre primero ya que no hay una buena manera de 
+determinarlo. Lo que hacemos para resolver este caso es que simplemente se 
+coloca primero el que pertenezca al log del primer parámetro de la función 
+(la función que hace el merge hace llamadas recursivas a si misma donde se cambia
+el orden de los logs por lo que no necesariamente es el log del primer fulcrum).
